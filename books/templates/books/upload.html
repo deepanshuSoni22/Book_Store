@@ -1,0 +1,264 @@
+{# books/upload.html #}
+{% extends "books/base.html" %}
+{% block title %}Upload Book{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+        <h1 class="font-serif text-4xl font-bold text-slate">Upload Book</h1>
+        <div class="mt-2 w-24 h-1 bg-gold mx-auto"></div>
+    </div>
+
+    <div class="mb-8">
+        <a href="{% url 'books:book_list' %}" class="inline-flex items-center text-sm text-slate hover:text-gold transition duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Books
+        </a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 bg-slate text-white">
+            <h2 class="font-serif text-xl font-bold">Book Information</h2>
+        </div>
+
+        <div class="p-6">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                {# Display non-field errors at the top #}
+                {% if form.non_field_errors %}
+                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md" role="alert">
+                        <p class="font-bold">Error uploading the book:</p>
+                        <ul class="mt-1 list-disc list-inside">
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {# Render specific fields in a desired order, including the new category fields #}
+
+                {# Title Field #}
+                <div class="space-y-2">
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.title.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.title.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.title.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.title.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                {# Author Field #}
+                 <div class="space-y-2">
+                    <label for="{{ form.author.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.author.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.author }}
+                        {% if form.author.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.author.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.author.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.author.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.author.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                {# Description Field #}
+                 <div class="space-y-2">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.description.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.description.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.description.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.description.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                {# Category Dropdown Field #}
+                <div class="space-y-2">
+                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.category.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.category.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.category.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.category.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                {# Other Category Input Field (Initially Hidden) #}
+                {# Add an ID to easily reference this div for toggling visibility #}
+                <div id="other_category_div" class="space-y-2" style="display: none;">
+                    <label for="{{ form.other_category.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.other_category.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.other_category }}
+                        {% if form.other_category.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.other_category.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.other_category.errors.0 }}</p>
+                    {% endif %}
+                     {% if form.other_category.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.other_category.help_text }}</p>
+                    {% endif %}
+                </div>
+
+
+                {# File Field #}
+                <div class="space-y-2">
+                    <label for="{{ form.file.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.file.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.file }}
+                        {% if form.file.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.file.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.file.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.file.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.file.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                {# Cover Image Field #}
+                <div class="space-y-2">
+                    <label for="{{ form.cover_image.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.cover_image.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.cover_image }}
+                        {% if form.cover_image.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.cover_image.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.cover_image.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.cover_image.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.cover_image.help_text }}</p>
+                    {% endif %}
+                </div>
+
+                 {# Purchase Price Field #}
+                 <div class="space-y-2">
+                    <label for="{{ form.purchase_price.id_for_label }}" class="block text-sm font-medium text-slate">
+                        {{ form.purchase_price.label }}
+                    </label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        {{ form.purchase_price }}
+                        {% if form.purchase_price.errors %}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-exclamation-circle text-red-500"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if form.purchase_price.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.purchase_price.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.purchase_price.help_text %}
+                        <p class="mt-2 text-xs text-gray-500">{{ form.purchase_price.help_text }}</p>
+                    {% endif %}
+                </div>
+
+
+                {# Render hidden fields explicitly (like file_hash) #}
+                {% for field in form.hidden_fields %}
+                    {{ field }}
+                {% endfor %}
+
+                <div class="pt-4">
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gold hover:bg-gold-light hover:text-navy focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition duration-300">
+                        <i class="fas fa-upload mr-2"></i> Upload Book
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add Tailwind classes to form fields (Keeping existing styling logic)
+        const textInputs = document.querySelectorAll('input[type="text"], input[type="number"], textarea');
+        textInputs.forEach(input => {
+            input.classList.add('appearance-none', 'block', 'w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'placeholder-gray-400', 'focus:outline-none', 'focus:ring-gold', 'focus:border-gold');
+        });
+
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.classList.add('block', 'w-full', 'text-sm', 'text-slate', 'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-md', 'file:border-0', 'file:text-sm', 'file:font-medium', 'file:bg-gold-light', 'file:text-navy', 'hover:file:bg-gold', 'hover:file:text-white');
+        });
+
+        const selectFields = document.querySelectorAll('select');
+        selectFields.forEach(select => {
+            select.classList.add('block', 'w-full', 'pl-3', 'pr-10', 'py-2', 'text-base', 'border-gray-300', 'focus:outline-none', 'focus:ring-gold', 'focus:border-gold', 'rounded-md');
+        });
+
+        // --- JavaScript for Category Dropdown ---
+        const categorySelect = document.getElementById('id_category'); // Get the category select element by its ID
+        const otherCategoryDiv = document.getElementById('other_category_div'); // Get the div containing the other_category field
+
+        // Function to toggle the visibility of the 'other_category_div'
+        function toggleOtherCategoryField() {
+            if (categorySelect.value === 'Others') {
+                otherCategoryDiv.style.display = 'block'; // Show the div
+            } else {
+                otherCategoryDiv.style.display = 'none'; // Hide the div
+            }
+        }
+
+        // Add an event listener to the category select dropdown
+        categorySelect.addEventListener('change', toggleOtherCategoryField);
+
+        // Call the function once on page load to set the initial state
+        toggleOtherCategoryField();
+    });
+</script>
+{% endblock %}

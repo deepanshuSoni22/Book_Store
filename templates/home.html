@@ -1,0 +1,285 @@
+{# home.html #}
+{% extends "books/base.html" %}
+{% load static %} {# Load static files tag to use {% static %} #}
+
+{% block title %}Welcome to BookStore{% endblock %}
+{% block content %}
+<section class="relative bg-slate rounded-xl overflow-hidden shadow-xl mb-16">
+    <div class="absolute inset-0 bg-gradient-to-r from-slate to-navy opacity-90"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div class="text-center md:text-left">
+                <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
+                    Discover, Upload, and <span class="text-gold">Read</span> Books
+                </h1>
+                <div class="mt-2 w-24 h-1 bg-gold mx-auto md:mx-0"></div>
+                <p class="mt-6 text-lg text-gray-200">
+                    Explore a diverse collection of books, upload your own creations, and enjoy seamless in-app reading. Your ultimate book marketplace experience starts here.
+                </p>
+                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <a href="{% url 'books:book_list' %}" class="px-8 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md transition duration-300 text-center">
+                        <i class="fas fa-book-open mr-2"></i>Browse Books
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'accounts:signup' %}" class="px-8 py-3 bg-transparent hover:bg-white text-white hover:text-navy border border-white font-medium rounded-md transition duration-300 text-center">
+                        <i class="fas fa-user-plus mr-2"></i>Join Today
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <div class="relative">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-gold-light rounded-full opacity-20"></div>
+                    <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-gold rounded-full opacity-20"></div>
+                    <div class="relative bg-white p-6 rounded-lg shadow-lg transform">
+                        <div class="bg-gold-light p-8 rounded flex items-center justify-center">
+                            <i class="fas fa-book-reader text-gold text-7xl"></i> {# Changed icon to book-reader #}
+                        </div>
+                        <div class="mt-6 text-center">
+                            <h3 class="font-serif text-xl font-bold text-slate">Seamless Reading Experience</h3> {# Updated title #}
+                            <p class="mt-2 text-gray-600">Enjoy your purchased books with our in-app reader.</p> {# Updated description #}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-12 mb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="font-serif text-3xl font-bold text-slate">Key Features</h2> {# Updated title #}
+            <div class="mt-2 w-24 h-1 bg-gold mx-auto"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:translate-y-[-5px]">
+                <div class="p-6">
+                    <div class="w-16 h-16 rounded-full bg-gold-light flex items-center justify-center mx-auto">
+                        <i class="fas fa-search text-gold text-2xl"></i> {# Changed icon to search #}
+                    </div>
+                    <h3 class="mt-4 font-serif text-xl font-bold text-slate text-center">Discover & Purchase</h3> {# Updated title #}
+                    <p class="mt-2 text-gray-600 text-center">
+                        Browse our growing collection by category and purchase books instantly.
+                    </p>
+                </div>
+                <div class="px-6 py-3 bg-cream">
+                    <a href="{% url 'books:book_list' %}" class="text-gold hover:text-navy transition duration-300 flex items-center justify-center">
+                        <span>Explore Books</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:translate-y-[-5px]">
+                <div class="p-6">
+                    <div class="w-16 h-16 rounded-full bg-gold-light flex items-center justify-center mx-auto">
+                        <i class="fas fa-upload text-gold text-2xl"></i> {# Changed icon to upload #}
+                    </div>
+                    <h3 class="mt-4 font-serif text-xl font-bold text-slate text-center">Upload Your Books</h3> {# Updated title #}
+                    <p class="mt-2 text-gray-600 text-center">
+                        Share your literary works with the community and set your own price.
+                    </p>
+                </div>
+                <div class="px-6 py-3 bg-cream">
+                    <a href="{% url 'books:upload_book' %}" class="text-gold hover:text-navy transition duration-300 flex items-center justify-center">
+                        <span>Upload Now</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl hover:translate-y-[-5px]">
+                <div class="p-6">
+                    <div class="w-16 h-16 rounded-full bg-gold-light flex items-center justify-center mx-auto">
+                        <i class="fas fa-file-pdf text-gold text-2xl"></i> {# Changed icon to file-pdf #}
+                    </div>
+                    <h3 class="mt-4 font-serif text-xl font-bold text-slate text-center">Convenient Reading</h3> {# Updated title #}
+                    <p class="mt-2 text-gray-600 text-center">
+                        Read your purchased PDF books directly within the application.
+                    </p>
+                </div>
+                <div class="px-6 py-3 bg-cream">
+                    <a href="{% url 'books:book_list' %}" class="text-gold hover:text-navy transition duration-300 flex items-center justify-center">
+                        <span>Find Books to Read</span> {# Updated text #}
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-12 bg-cream rounded-xl mb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div>
+                <h2 class="font-serif text-3xl font-bold text-slate">Latest Books</h2> {# Changed to Latest Books #}
+                <div class="mt-2 w-24 h-1 bg-gold"></div>
+            </div>
+            <a href="{% url 'books:book_list' %}" class="mt-4 md:mt-0 text-gold hover:text-navy transition duration-300 flex items-center">
+                <span>View All Books</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+
+        {% if featured_books %} {# Assuming featured_books context variable is passed from view #}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for book in featured_books %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden transition duration-300 hover:shadow-xl border-b-2 border-transparent hover:border-gold">
+                <div class="p-4">
+                    {# Book Cover or Placeholder #}
+                    <div class="mb-4 w-full h-40 bg-gold-light rounded flex items-center justify-center overflow-hidden">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" alt="{{ book.title }} Cover" class="w-full h-full object-cover">
+                        {% else %}
+                           <i class="fas fa-book text-gold text-3xl"></i>
+                        {% endif %}
+                    </div>
+
+                    <h3 class="font-serif text-lg font-bold text-slate line-clamp-1">{{ book.title }}</h3>
+                    <p class="text-gray-600 text-sm mt-1 line-clamp-1">by <span class="italic">{{ book.author }}</span></p>
+
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-semibold text-slate">₹{{ book.purchase_price }}</span> {# Added Indian Rupee symbol #}
+                            <a href="{% url 'books:book_detail' book.pk %}" class="text-gold hover:text-navy transition duration-300">
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-10 bg-white rounded-lg shadow-md">
+            <div class="inline-block p-6 rounded-full bg-gold-light mb-6">
+                <i class="fas fa-book-open text-gold text-4xl"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-slate mb-2">No Books Available Yet</h3> {# Updated text #}
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">Be the first to add a book to our collection.</p>
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'books:upload_book' %}" class="inline-flex items-center px-6 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md transition duration-300">
+                <i class="fas fa-upload mr-2"></i> Upload a Book
+            </a>
+            {% else %}
+            <a href="{% url 'accounts:signup' %}" class="inline-flex items-center px-6 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md transition duration-300">
+                <i class="fas fa-user-plus mr-2"></i> Join to Upload Books
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="py-12 mb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="font-serif text-3xl font-bold text-slate">What Our Readers Say</h2> {# Updated title #}
+            <div class="mt-2 w-24 h-1 bg-gold mx-auto"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden p-6">
+                <div class="text-gold mb-4">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="text-gray-600 italic mb-6">
+                    "This platform is fantastic! I can easily find and purchase the books I need for my studies and read them right away." {# Updated testimonial #}
+                </p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gold-light flex items-center justify-center">
+                        <span class="text-navy font-medium">A</span> {# Changed initial #}
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="font-medium text-slate">Rohan Patra</h4> {# Changed name #}
+                        <p class="text-sm text-gray-500">Student</p> {# Changed title #}
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md overflow-hidden p-6">
+                <div class="text-gold mb-4">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="text-gray-600 italic mb-6">
+                    "Uploading my book was simple and quick. It's great to have a marketplace specifically for academic and general interest books." {# Updated testimonial #}
+                </p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gold-light flex items-center justify-center">
+                        <span class="text-navy font-medium">R</span> {# Changed initial #}
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="font-medium text-slate">Srajan N</h4> {# Changed name #}
+                        <p class="text-sm text-gray-500">Author</p> {# Changed title #}
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md overflow-hidden p-6">
+                <div class="text-gold mb-4">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+                <p class="text-gray-600 italic mb-6">
+                    "The in-app PDF reader is clean and easy to use. I appreciate being able to access my purchased books without needing external apps." {# Updated testimonial #}
+                </p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-gold-light flex items-center justify-center">
+                        <span class="text-navy font-medium">S</span> {# Changed initial #}
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="font-medium text-slate">Kaushik R</h4> {# Changed name #}
+                        <p class="text-sm text-gray-500">Happy Reader</p> {# Changed title #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="relative bg-slate rounded-xl overflow-hidden shadow-xl mb-16">
+    <div class="absolute inset-0 bg-gradient-to-r from-navy to-slate opacity-90"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="text-center">
+            <h2 class="font-serif text-3xl md:text-4xl font-bold text-white">
+                Ready to Dive into the World of Books?
+            </h2>
+            <p class="mt-4 text-lg text-gray-200 max-w-3xl mx-auto">
+                Join our community to explore, purchase, and read a wide variety of books, or upload your own and connect with readers.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                {% if user.is_authenticated %}
+                <a href="{% url 'books:upload_book' %}" class="px-8 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md transition duration-300">
+                    <i class="fas fa-upload mr-2"></i>Upload Your Book
+                </a>
+                <a href="{% url 'books:book_list' %}" class="px-8 py-3 bg-transparent hover:bg-white text-white hover:text-navy border border-white font-medium rounded-md transition duration-300">
+                    <i class="fas fa-book-open mr-2"></i>Browse Books
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:signup' %}" class="px-8 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md transition duration-300">
+                    <i class="fas fa-user-plus mr-2"></i>Create Account
+                </a>
+                <a href="{% url 'accounts:login' %}" class="px-8 py-3 bg-transparent hover:bg-white text-white hover:text-navy border border-white font-medium rounded-md transition duration-300">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

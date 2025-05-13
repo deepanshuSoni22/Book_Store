@@ -1,0 +1,275 @@
+{# books/detail.html #}
+{% extends "books/base.html" %}
+{% load custom_tags %} {# Load your custom tags #}
+{% load static %} {# Load static files tag if you are using static images #}
+
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+        <a href="{% url 'books:book_list' %}" class="inline-flex items-center text-sm text-slate hover:text-gold transition duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Books
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="md:flex">
+            <div class="md:w-1/3 bg-gold-light p-8 flex items-center justify-center overflow-hidden">
+                {% if book.cover_image %}
+                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }} Cover" class="w-full h-auto max-h-80 object-contain rounded-lg shadow-md">
+                {% else %}
+                    <div class="w-full h-64 md:h-80 bg-white rounded-lg shadow-md flex items-center justify-center">
+                        <i class="fas fa-book text-gold text-5xl"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="md:w-2/3 p-8">
+                <h1 class="font-serif text-3xl font-bold text-slate">{{ book.title }}</h1>
+                <p class="text-xl text-gray-600 mt-1 italic">by {{ book.author }}</p>
+
+                {# Display the book description #}
+                {% if book.description %}
+                    <div class="mt-6">
+                        <h3 class="font-serif text-xl font-bold text-slate mb-2">Description</h3>
+                        <p class="text-gray-700">{{ book.description|linebreaksbr }}</p> {# Use linebreaksbr to preserve line breaks #}
+                    </div>
+                {% endif %}
+
+                <div class="mt-6 space-y-4">
+                    {# Display average rating above prices #}
+                    {% if book.average_rating > 0 %} {# Only show if there's at least one rating #}
+                        <div class="flex items-center">
+                            <div class="w-8 text-gold">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm text-gray-500">Average Rating</span>
+                                <p class="text-slate font-bold text-lg">
+                                    {{ book.average_rating|floatformat:1 }}/5
+                                    <span class="text-sm font-normal text-gray-500">({{ book.reviews.count }} review{% if book.reviews.count != 1 %}s{% endif %})</span>
+                                </p>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex items-center">
+                        <div class="w-8 text-gold">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Uploaded by</span>
+                            <p class="text-slate font-medium">{{ book.owner.username }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="w-8 text-gold">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Purchase Price</span>
+                            <p class="text-slate font-bold text-lg">₹{{ book.purchase_price }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% if book.owner == request.user %}
+                <div class="mt-6 bg-gold-light border-l-4 border-gold rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-gold"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-navy">You are the owner of this book.</p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {# --- Action Buttons and Messages --- #}
+                <div class="mt-8">
+                    {% if user.is_authenticated %}
+                        {% if can_download %}
+                            {# User is owner, can download AND read #}
+                             <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                                <a href="{% url 'books:download_book' book.pk %}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-slate hover:bg-navy text-white font-medium rounded-md shadow-md transition duration-300">
+                                    <i class="fas fa-download mr-2"></i> Download Book
+                                </a>
+                                <a href="{% url 'books:read_book' book.pk %}" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md shadow-md transition duration-300">
+                                    <i class="fas fa-book-reader mr-2"></i> Read Book Online
+                                </a>
+                            </div>
+                        {% elif can_read %}
+                            {# User has purchased, can ONLY read in-app #}
+                             <div class="mb-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-500"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">You have purchased this book. Read it in the app reader.</p> {# Updated message #}
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{% url 'books:read_book' book.pk %}" class="inline-flex items-center px-6 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md shadow-md transition duration-300">
+                                <i class="fas fa-book-reader mr-2"></i> Read Book Online
+                            </a>
+                        {% else %}
+                            {# User is logged in but has not purchased #}
+                            <form action="{% url 'books:create_order' book.pk 'purchase' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-slate hover:bg-navy text-white font-medium rounded-md shadow-md transition duration-300">
+                                    <i class="fas fa-shopping-cart mr-2"></i> Buy for ₹{{ book.purchase_price }}
+                                </button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        {# User is not logged in #}
+                        <div class="bg-gold-light border-l-4 border-gold rounded-md p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-lock text-gold"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-navy">
+                                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="font-medium text-gold hover:text-gold-light underline transition duration-300">Log in</a> to purchase this book.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                {# --- End Action Buttons and Messages --- #}
+            </div>
+        </div>
+    </div>
+
+    {# --- Reviews Section --- #}
+    <div class="mt-12">
+        <h2 class="font-serif text-2xl font-bold text-slate mb-6">Reviews</h2>
+
+        {# Display existing reviews #}
+        {% if reviews %}
+            <div class="space-y-6">
+                {% for review in reviews %}
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center mb-3">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gold flex items-center justify-center text-white font-bold text-sm mr-3">
+                                {{ review.user.username|first|upper }} {# Display first letter of username #}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate">{{ review.user.username }}</p>
+                                <p class="text-xs text-gray-500">{{ review.created_at|date:"F d, Y" }} at {{ review.created_at|time:"H:i" }}</p>
+                            </div>
+                        </div>
+                        {# Display stars for rating #}
+                        <div class="mb-3">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= review.rating %}
+                                    <i class="fas fa-star text-gold text-sm"></i>
+                                {% else %}
+                                    <i class="far fa-star text-gray-300 text-sm"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="text-gray-700">{{ review.comment }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-600 italic">No reviews yet. Be the first to leave one!</p>
+        {% endif %}
+
+        {# Review Submission Form #}
+        {# Conditionally display the form for authenticated users who are eligible AND have NOT reviewed #}
+        {% if user.is_authenticated and can_review and not has_reviewed %}
+            <div class="mt-10 bg-white rounded-lg shadow-md p-6">
+                <h3 class="font-serif text-xl font-bold text-slate mb-4">Leave a Review</h3>
+                {# Display form errors at the top of the form #}
+                {% if review_form.errors %}
+                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md" role="alert">
+                        <p class="font-bold">Please correct the following errors:</p>
+                        <ul class="mt-1 list-disc list-inside">
+                            {% for field, errors in review_form.errors.items %}
+                                {% for error in errors %}
+                                    {# Using your custom get_item tag #}
+                                    {% with form_field=review_form|get_item:field %}
+                                        <li>{{ form_field.label|default:field }}: {{ error }}</li>
+                                    {% endwith %}
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <form action="{% url 'books:add_review' book.pk %}" method="post" class="space-y-4">
+                    {% csrf_token %}
+                    {# Render fields manually for better control over styling #}
+                    <div>
+                        <label for="{{ review_form.rating.id_for_label }}" class="block text-sm font-medium text-slate">{{ review_form.rating.label }}</label>
+                        {{ review_form.rating }}
+                        {# Display field-specific errors below the field #}
+                        {% if review_form.rating.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ review_form.rating.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label for="{{ review_form.comment.id_for_label }}" class="block text-sm font-medium text-slate">{{ review_form.comment.label }}</label>
+                        {{ review_form.comment }}
+                         {# Display field-specific errors below the field #}
+                        {% if review_form.comment.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ review_form.comment.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="inline-flex items-center px-6 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md shadow-md transition duration-300">
+                        <i class="fas fa-comment-dots mr-2"></i> Submit Review
+                    </button>
+                </form>
+            </div>
+        {% elif user.is_authenticated and has_reviewed %}
+            {# Display a message for logged-in users who have already reviewed #}
+            <div class="mt-10 bg-gold-light border-l-4 border-gold rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-gold"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-navy">You have already reviewed this book.</p>
+                    </div>
+                </div>
+            </div>
+        {% elif user.is_authenticated and not can_review %}
+            {# Display a message for logged-in users who are not eligible to review #}
+             <div class="mt-10 bg-cream border-l-4 border-gold-light text-slate rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-gold"></i>
+                    </div>
+                    <div class="ml-3">
+                         <p class="text-sm text-slate">Purchase this book to leave a review.</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            {# User is not logged in - show login prompt #}
+            <div class="mt-10 bg-gold-light border-l-4 border-gold rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-lock text-gold"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-navy">
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="font-medium text-gold hover:text-gold-light underline transition duration-300">Log in</a> to purchase this book.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {# --- End Reviews Section --- #}
+</div>
+{% endblock %}

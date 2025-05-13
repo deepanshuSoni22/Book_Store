@@ -1,0 +1,176 @@
+{# books/checkout.html #}
+{% extends "books/base.html" %}
+{% load static %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="text-center mb-8">
+        <h1 class="font-serif text-4xl font-bold text-slate">Secure Checkout</h1>
+        <div class="mt-2 w-24 h-1 bg-gold mx-auto"></div>
+    </div>
+
+    {# Add a back button that goes to the book detail page #}
+    <div class="mb-8">
+        <a href="{% url 'books:book_detail' pk=book.pk %}" class="inline-flex items-center text-sm text-slate hover:text-gold transition duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Book Details
+        </a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 bg-slate text-white">
+            <h2 class="font-serif text-xl font-bold">Order Summary</h2>
+        </div>
+
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center">
+                {# Display cover image or default icon #}
+                <div class="flex-shrink-0 w-16 h-16 bg-gold-light rounded flex items-center justify-center overflow-hidden"> {# Added overflow-hidden #}
+                    {% if book.cover_image %}
+                    {# Display uploaded cover image #}
+                    {# Using object-cover to fill the small container #}
+                    <img src="{{ book.cover_image.url }}" alt="{{ book_title }} Cover" class="w-full h-full object-cover">
+                    {% else %}
+                        {# Display default icon placeholder if no cover image #}
+                    <i class="fas fa-book text-gold text-2xl"></i>
+                    {% endif %}
+                </div>
+                <div class="ml-4">
+                    <h3 class="font-serif text-lg font-bold text-slate">{{ book_title }}</h3>
+                    <div class="flex items-center mt-1">
+                        <i class="fas fa-tag text-gold-light mr-1"></i>
+                        {# Removed {{ order_type }} - now it's always a purchase #}
+                        <span class="text-sm text-gray-600">Purchase</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-cream rounded-md p-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Subtotal</span>
+                    <span class="font-medium">₹{{ order.amount|floatformat:"-2" }}</span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-gray-600">Tax</span>
+                    <span class="font-medium">₹0.00</span> {# Assuming no tax for now #}
+                </div>
+                <div class="h-px bg-gray-200 my-3"></div>
+                <div class="flex justify-between items-center font-serif text-lg font-bold">
+                    <span>Total</span>
+                    <span class="text-slate">₹{{ order.amount|floatformat:"-2" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <h3 class="font-serif text-lg font-bold text-slate mb-4">Complete Your Payment</h3>
+
+            <div class="mb-6 bg-gold-light bg-opacity-30 rounded-md p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-shield-alt text-gold"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-gray-600">Your payment is securely processed by Razorpay. Your card details are not stored on our servers. <br> Use this test card: 4386 2894 0766 0153</p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="rzp-button1" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gold hover:bg-gold-light hover:text-navy focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition duration-300">
+                <i class="fas fa-credit-card mr-2"></i> Pay ₹{{ order.amount|floatformat:"-2" }}
+            </button>
+
+            <div class="mt-4 flex justify-center">
+                <div class="flex items-center space-x-4 text-sm text-gray-500">
+                    <div class="flex items-center">
+                        <i class="fas fa-lock mr-1"></i>
+                        <span>Secure Payment</span>
+                    </div>
+                    <div class="h-4 w-px bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        <span>Instant Access</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="payment-callback-form" action="{{ callback_url }}" method="POST" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+        <input type="hidden" name="notes[order_id]" value="{{ order_id }}">
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('rzp-button1').onclick = function(e){
+        var options = {
+            "key": "{{ razorpay_key_id }}",
+            "amount": "{{ amount }}", // Amount is in currency subunits
+            "currency": "{{ currency }}",
+            "name": "{{ company_name }}",
+            "description": "Payment for {{ book_title }}",
+            "image": "https://example.com/your_logo.jpg", // Optional
+            "order_id": "{{ razorpay_order_id }}", // This is the order ID obtained in the response of Step 1 (from Razorpay)
+            "handler": function (response){
+                // Populate the hidden form and submit
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_order_id').value = response.razorpay_order_id; // Razorpay's order_id
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('payment-callback-form').submit();
+            },
+            "prefill": { //Optional
+                "name": "{{ request.user.get_full_name|default:request.user.username }}", //Provide the customer's name
+                "email": "{{ user_email }}",
+                "contact": "{{ user_contact }}"  //Provide the customer's contact number
+            },
+            "notes": {
+                "address": "BookStore Transaction",
+                "order_id": "{{ order_id }}" // Your internal order ID
+            },
+            "theme": {
+                "color": "#D4AF37" // Gold color to match your theme
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response){
+            // Create a styled error message
+            let errorContainer = document.createElement('div');
+            errorContainer.className = 'fixed inset-0 flex items-center justify-center z-50';
+            errorContainer.innerHTML = `
+                <div class="absolute inset-0 bg-slate bg-opacity-50"></div>
+                <div class="relative bg-white rounded-lg shadow-xl p-6 max-w-lg w-full mx-4">
+                    <div class="text-center mb-4">
+                        <div class="inline-block p-3 rounded-full bg-red-100 mb-4">
+                            <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                        </div>
+                        <h3 class="font-serif text-xl font-bold text-slate mb-2">Payment Failed</h3>
+                        <p class="text-gray-600">${response.error.description}</p>
+                    </div>
+                    <div class="mt-6 flex justify-center">
+                        <button id="dismiss-error" class="px-4 py-2 bg-slate text-white rounded-md hover:bg-navy transition duration-300">
+                            Return to Book
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(errorContainer);
+
+            document.getElementById('dismiss-error').addEventListener('click', function() {
+                document.body.removeChild(errorContainer);
+                // Redirect back to the book detail page
+                window.location.href = "{% url 'books:book_detail' pk=book.pk %}";
+            });
+        });
+        rzp1.open();
+        e.preventDefault();
+    }
+});
+</script>
+{% endblock %}

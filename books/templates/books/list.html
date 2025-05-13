@@ -1,0 +1,134 @@
+{# books/list.html #}
+{% extends "books/base.html" %}
+{% load static %} {# Load static files tag to use {% static %} #}
+
+{% block title %}All Books{% endblock %}
+{% block content %}
+<div class="space-y-10">
+    <div class="text-center md:text-left">
+        <h1 class="font-serif text-4xl font-bold text-slate">Discover Books</h1>
+        <div class="mt-2 w-24 h-1 bg-gold mx-auto md:mx-0"></div>
+    </div>
+
+    <div class="mb-8 flex flex-col md:flex-row md:justify-between items-center">
+        {# CONDITION: Only show "Back to Home" if user is NOT authenticated #}
+        {% if not user.is_authenticated %}
+        <a href="{% url 'home_page' %}" class="inline-flex items-center text-sm text-slate hover:text-gold transition duration-300 mb-4 md:mb-0">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Home
+        </a>
+        {% endif %}
+
+        {# Category Filter Dropdown #}
+        <div class="relative inline-block text-left">
+            <div>
+                 <label for="category-filter" class="sr-only">Filter by Category</label>
+                 <select id="category-filter" name="category-filter" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gold focus:border-gold rounded-md">
+                    <option value="">All Categories</option> {# Option to show all books #}
+                    {# You will populate these options dynamically from your view #}
+                    {# For now, hardcode the initial categories #}
+                    <option value="BCA">BCA</option>
+                    <option value="BCOM">BCOM</option>
+                    <option value="BBA">BBA</option>
+                    <option value="BSC">BSC</option>
+                    {# Note: Custom 'Others' categories won't be in this predefined list #}
+                    {# You might want to fetch all unique categories from the database #}
+                 </select>
+            </div>
+        </div>
+    </div>
+
+
+    {% if books %}
+    {# Modified grid to display 4 columns on large screens and adjusted gap #}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"> {# Changed lg:grid-cols-3 to lg:grid-cols-4 and gap-8 to gap-6 #}
+        {% for book in books %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition duration-300 hover:shadow-xl border-b-2 border-transparent hover:border-gold">
+            <div class="p-4"> {# Reduced padding from p-6 to p-4 #}
+                {# Check if book has a cover image #}
+              {# Adjusted image container height #}
+              <div class="mb-4 w-full h-64 bg-gold-light rounded flex items-center justify-center overflow-hidden"> {# Reduced height from h-80 to h-64 #}
+                {% if book.cover_image %}
+                    {# Display the uploaded cover image #}
+                   <img src="{{ book.cover_image.url }}" alt="{{ book.title }} Cover" class="w-full h-full object-cover"> {# Using object-cover to fill the container #}
+                {% else %}
+                    {# Display the default icon placeholder if no cover image #}
+                   <i class="fas fa-book text-gold text-4xl"></i>
+                {% endif %}
+              </div>
+
+                {# Adjusted font sizes and margins for details #}
+                <h2 class="font-serif text-lg font-bold text-slate line-clamp-2">{{ book.title }}</h2> {# Reduced text size from xl to lg #}
+                <p class="text-gray-600 text-sm mt-1">by <span class="italic">{{ book.author }}</span></p> {# Reduced text size from base to sm #}
+
+                {# Display average rating #}
+                {# Adjusted font size and margin for rating #}
+                <div class="flex items-center text-xs text-gray-600 mt-2"> {# Reduced text size from sm to xs #}
+                    <i class="fas fa-star text-gold mr-1"></i>
+                    {# Display average rating, format to 1 decimal place #}
+                    {% if book.average_rating and book.reviews.count %}
+                        <span>{{ book.average_rating|floatformat:1 }}/5</span>
+                        <span class="ml-2">({{ book.reviews.count }} reviews)</span>
+                    {% else %}
+                        <span>No reviews and ratings yet</span>
+                    {% endif %}
+                </div>
+
+                {# Removed the details section below rating to reduce height #}
+
+                <div class="mt-4"> {# Reduced top margin from mt-6 to mt-4 #}
+                    <a href="{% url 'books:book_detail' book.pk %}" class="block w-full py-2 px-4 bg-slate hover:bg-navy text-center rounded-md text-white font-medium transition duration-300 text-sm"> {# Reduced text size to sm #}
+                        <i class="fas fa-eye mr-2"></i>View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-16 bg-white rounded-lg shadow-md">
+        <div class="inline-block p-6 rounded-full bg-gold-light mb-6">
+            <i class="fas fa-book-open text-gold text-4xl"></i>
+        </div>
+        <h3 class="font-serif text-2xl font-bold text-slate mb-2">No Books Available Yet</h3>
+        <p class="text-gray-600 mb-6 max-w-md mx-auto">Be the first to add a book to our collection.</p>
+
+        {% if user.is_authenticated %}
+        <a href="{% url 'books:upload_book' %}" class="inline-flex items-center px-6 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md transition duration-300">
+            <i class="fas fa-upload mr-2"></i> Upload a Book
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="inline-flex items-center px-6 py-3 bg-gold hover:bg-gold-light hover:text-navy text-white font-medium rounded-md transition duration-300">
+            <i class="fas fa-sign-in-alt mr-2"></i> Sign In to Add Books
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryFilter = document.getElementById('category-filter');
+
+        categoryFilter.addEventListener('change', function() {
+            const selectedCategory = this.value;
+            let url = '{% url "books:book_list" %}'; // Base URL for the book list
+
+            if (selectedCategory) {
+                // If a category is selected, add it as a query parameter
+                url = `${url}?category=${selectedCategory}`;
+            }
+
+            // Redirect to the new URL to filter the books
+            window.location.href = url;
+        });
+
+        // Optional: Set the dropdown value based on the current URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentCategory = urlParams.get('category');
+        if (currentCategory) {
+            categoryFilter.value = currentCategory;
+        }
+    });
+</script>
+{% endblock %}

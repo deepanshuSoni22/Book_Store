@@ -1,0 +1,148 @@
+{# books/reader.html #}
+{% extends "books/base.html" %}
+{% load static %}
+
+{% block title %}Reading: {{ book.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom CSS for the main reader */
+    #pdf-viewer-container {
+        position: relative;
+        flex-grow: 1;
+        overflow: auto; /* This should enable scrolling */
+        background-color: #f7fafc; /* bg-gray-100 or similar light background */
+        display: flex;
+        flex-direction: column; /* Stack pages vertically */
+        align-items: center; /* Center horizontally */
+        padding: 1rem; /* Add some padding around the PDF */
+        /* Removed padding-bottom here as controls are outside */
+    }
+
+    /* Style for the canvas elements inside viewer containers */
+    #pdf-viewer-container canvas {
+        display: block; /* Ensure canvas is a block element */
+        margin: 0 auto; /* Center the canvas horizontally */
+        max-width: 100%; /* Prevent canvas from overflowing its container horizontally */
+        height: auto; /* Maintain aspect ratio */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Add subtle shadow to pages */
+         /* Ensure canvas doesn't have fixed height that prevents scrolling */
+    }
+
+     /* Improve scrollbar appearance (optional, browser-specific) */
+    #pdf-viewer-container::-webkit-scrollbar {
+        width: 8px;
+    }
+    #pdf-viewer-container::-webkit-scrollbar-track {
+        background: #e2e8f0; /* bg-gray-200 */
+    }
+    #pdf-viewer-container::-webkit-scrollbar-thumb {
+        background: #D4AF37; /* gold */
+        border-radius: 4px;
+    }
+    #pdf-viewer-container::-webkit-scrollbar-thumb:hover {
+        background: #b8922f; /* darker gold */
+    }
+
+
+    /* Ensure loading indicator is centered */
+     #loading-indicator {
+         position: absolute; /* Position absolutely within the flex container */
+         top: 0;
+         left: 0;
+         right: 0;
+         bottom: 0;
+         display: flex; /* Use flexbox for centering its content */
+         align-items: center;
+         justify-content: center;
+         background-color: inherit; /* Inherit background from parent for consistency */
+     }
+     #loading-indicator.hidden {
+         display: none;
+     }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8"> {# Added padding for smaller screens #}
+
+    <div class="pt-6"> {# Added padding top #}
+        <a href="{% url 'books:book_detail' pk=book.pk %}" class="inline-flex items-center text-sm text-slate hover:text-gold transition duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Book Details
+        </a>
+    </div>
+
+    <div class="relative bg-white rounded-lg shadow-lg p-6"> {# Added padding to the main container #}
+
+        {# Updated message for in-app reader access #}
+        <div class="mb-6 bg-cream p-4 rounded-md border border-gold-light text-sm flex items-center">
+            <i class="fas fa-info-circle text-gold mr-2"></i>
+            <p>You are reading this book in the in-app reader. Downloads are not available for purchased books.</p>
+        </div>
+
+        {# Existing Reader Controls #}
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-gray-100 rounded-lg shadow-sm p-4"> {# Adjusted padding and spacing #}
+            <div class="flex items-center space-x-4 mb-4 sm:mb-0"> {# Adjusted spacing and margin for mobile #}
+                <button id="prev-page" class="px-4 py-2 bg-slate text-white rounded-md hover:bg-navy transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev Page</span> {# Added text for clarity on larger screens #}
+                </button>
+                <div class="text-base font-medium text-slate"> {# Increased text size #}
+                    Page <span id="page_num">1</span> of <span id="page_count">-</span>
+                </div>
+                <button id="next-page" class="px-4 py-2 bg-slate text-white rounded-md hover:bg-navy transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span class="hidden sm:inline">Next Page</span> <i class="fas fa-chevron-right"></i> {# Added text for clarity #}
+                </button>
+            </div>
+            <div class="flex items-center space-x-4"> {# Adjusted spacing #}
+                <button id="zoom-out" class="px-4 py-2 bg-gold-light text-navy rounded-md hover:bg-gold hover:text-white transition duration-300">
+                    <i class="fas fa-search-minus"></i> <span class="hidden sm:inline">Zoom Out</span> {# Added text #}
+                </button>
+                <button id="zoom-in" class="px-4 py-2 bg-gold-light text-navy rounded-md hover:bg-gold hover:text-white transition duration-300">
+                    <i class="fas fa-search-plus"></i> <span class="hidden sm:inline">Zoom In</span> {# Added text #}
+                </button>
+                {# Button to open the full-screen reader in a new page #}
+                <button id="open-fullscreen-page" class="px-4 py-2 bg-gold text-white rounded-md hover:bg-gold-light hover:text-navy transition duration-300">
+                    <i class="fas fa-expand mr-2"></i> Full Screen
+                </button>
+            </div>
+        </div>
+
+        {# PDF Viewer Container #}
+        {# Added role="document" for accessibility #}
+        {# Added data-book-pk to store the book's primary key #}
+        <div data-book-url="{{ book_file_url }}" data-book-pk="{{ book.pk }}" id="pdf-viewer-container"
+             class="w-full bg-gray-200 rounded-lg shadow-inner overflow-auto touch-action-pan-y"
+             style="min-height: 75vh; max-height: 90vh;" role="document" aria-label="Book Reader"> {# Added aria-label and min/max height #}
+            <div id="loading-indicator" class="h-full flex items-center justify-center bg-gray-200"> {# Added background #}
+                <div class="text-center text-slate"> {# Adjusted text color #}
+                    <div class="inline-block">
+                        <i class="fas fa-spinner fa-spin text-gold text-4xl"></i>
+                    </div>
+                    <p class="mt-4 font-medium">Loading your book...</p>
+                </div>
+            </div>
+             {# The canvas for PDF.js will be appended here by the script #}
+        </div>
+    </div>
+
+    {# Book Title and Author at the bottom #}
+    <div class="flex flex-col md:flex-row justify-between items-center bg-white shadow-md rounded-lg px-6 py-4 border-l-4 border-gold">
+        <div>
+            <h1 class="font-serif text-2xl font-bold text-slate">{{ book.title }}</h1> {# Slightly reduced font size #}
+            <p class="text-gray-600 italic text-lg">by {{ book.author }}</p> {# Slightly reduced font size #}
+        </div>
+        <div class="mt-4 md:mt-0 flex items-center">
+            <span class="text-sm text-slate bg-gold-light px-3 py-1 rounded-full">
+                <i class="fas fa-book-reader mr-1"></i> Reading Mode
+            </span>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+<script src="{% static 'books/js/reader.js' %}"></script>
+{% endblock %}

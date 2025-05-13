@@ -1,0 +1,40 @@
+# Byte-code files
+*.pyc
+__pycache__/
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Database files
+db.sqlite3
+
+# Generated static files
+static_cdn/ # Or wherever collectstatic outputs
+
+# User-uploaded media files
+media/
+
+# Virtual environment
+new_venv/
+.new_venv/
+venv/
+.venv/
+
+# Dependency management
+Pipfile.lock # If using Pipenv
+poetry.lock # If using Poetry
+
+# Sensitive configuration
+.env # File containing local environment variables (including secrets)
+# myproject/settings_local.py # If you use a local settings file approach
+
+# Logs
+*.log
+
+# Testing artifacts
+.coverage
+htmlcov/
+
+# Development server history
+.python_history

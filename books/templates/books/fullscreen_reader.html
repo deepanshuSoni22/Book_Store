@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }} – Full Screen Reader</title> {# Use book title from context #}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Ensure the body and html take up full height */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Prevent scrolling on the body */
+            background-color: #1f2937; /* Dark background */
+            color: #ffffff; /* White text */
+            font-family: sans-serif;
+        }
+
+        #fullscreen-viewer-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+            overflow: auto; /* Allow scrolling within the viewer container */
+            padding: 1rem; /* Add some padding around the PDF */
+            padding-bottom: 6rem; /* Add extra padding at the bottom for controls */
+            box-sizing: border-box; /* Include padding in element's total width and height */
+            touch-action: pan-y; /* Enable vertical panning on touch devices */
+        }
+
+        #fullscreen-viewer-container canvas {
+            display: block; /* Ensure canvas is a block element */
+            margin: 0 auto; /* Center the canvas horizontally */
+            max-width: 100%; /* Prevent canvas from overflowing its container horizontally */
+            height: auto; /* Maintain aspect ratio */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); /* Add subtle shadow to pages */
+            background-color: #ffffff; /* White background for the page */
+        }
+
+         /* Improve scrollbar appearance (optional, browser-specific) */
+        #fullscreen-viewer-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        #fullscreen-viewer-container::-webkit-scrollbar-track {
+            background: #374151; /* bg-gray-700 */
+        }
+        #fullscreen-viewer-container::-webkit-scrollbar-thumb {
+            background: #D4AF37; /* gold */
+            border-radius: 4px;
+        }
+        #fullscreen-viewer-container::-webkit-scrollbar-thumb:hover {
+            background: #b8922f; /* darker gold */
+        }
+
+
+        #fullscreen-controls-overlay {
+            pointer-events: auto;
+            position: fixed; /* Keep fixed within viewport */
+            bottom: 1.5rem; /* Adjust distance from bottom */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            background-color: rgba(31, 41, 55, 0.9); /* bg-gray-800 with more opacity */
+            padding: 0.75rem 1.5rem; /* Increased padding */
+            border-radius: 9999px; /* Fully rounded */
+            display: flex;
+            /* Allow items to wrap to the next line on small screens */
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            max-width: 95%; /* Slightly wider max width */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Add subtle shadow */
+            /* Add margin-bottom here if needed to prevent controls from overlapping content */
+            /* margin-bottom: 1rem; */
+        }
+
+        #loading-indicator {
+             position: absolute; /* Position absolutely within the flex container */
+             top: 0;
+             left: 0;
+             right: 0;
+             bottom: 0;
+             display: flex; /* Use flexbox for centering its content */
+             align-items: center;
+             justify-content: center;
+             background-color: inherit; /* Inherit background from parent for consistency */
+             z-index: 10; /* Ensure it's above the canvas */
+        }
+        #loading-indicator.hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="fullscreen-viewer-container" role="document" aria-label="Full Screen Book Reader">
+        <div id="loading-indicator" class="flex-col">
+            <i class="fas fa-spinner fa-spin text-gold text-4xl sm:text-5xl"></i>
+            <p class="mt-4 text-sm sm:text-base font-medium text-gray-300">Loading your book…</p>
+        </div>
+        </div>
+
+    <div id="fullscreen-controls-overlay"
+         class="flex flex-wrap justify-center items-center space-x-3 sm:space-x-4">
+        <button id="close-fullscreen"
+                class="px-3 py-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition text-sm">
+            <i class="fas fa-times"></i> <span class="hidden sm:inline">Close</span>
+        </button>
+
+        <button id="prev-page"
+                class="px-3 py-1.5 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span>
+        </button>
+
+        <span class="text-white text-sm sm:text-base font-medium">
+            Page <span id="page_num">1</span>/<span id="page_count">–</span>
+        </span>
+
+        <button id="next-page"
+                class="px-3 py-1.5 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            <span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i>
+        </button>
+
+        {# Removed 'hidden' class here to show on all screen sizes #}
+        <div class="flex items-center space-x-3 border-l border-gray-700 ml-3 pl-3">
+            <button id="zoom-out"
+                    class="px-3 py-1.5 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition text-sm">
+                <i class="fas fa-search-minus"></i> <span class="hidden sm:inline">Out</span>
+            </button>
+            <button id="zoom-in"
+                    class="px-3 py-1.5 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition text-sm">
+                <i class="fas fa-search-plus"></i> <span class="hidden sm:inline">In</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    {# Pass book_pk and book_file_url from Django context to JavaScript #}
+    <script>
+        const bookPk = "{{ book_pk }}";
+        const bookFileUrl = "{{ book_file_url }}";
+        const initialPage = "{{ initial_page }}";
+    </script>
+    <script src="{% static 'books/js/fullscreen_reader.js' %}"></script>
+
+</body>
+</html>

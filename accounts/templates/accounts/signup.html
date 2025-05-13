@@ -1,0 +1,66 @@
+{# accounts/signup.html #}
+{% extends "books/base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+    <div class="px-6 py-8">
+        <div class="text-center mb-8">
+            <h2 class="font-serif text-3xl font-bold text-slate">Create Account</h2>
+            <div class="mt-2 w-16 h-1 bg-gold mx-auto"></div>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div class="space-y-2">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate">
+                    {{ field.label }}
+                </label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if field.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ field.errors.0 }}</p>
+                {% endif %}
+                {% if field.help_text %}
+                <p class="mt-2 text-xs text-gray-500">{{ field.help_text }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-slate hover:bg-navy focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold transition duration-300">
+                    Create Account
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 sm:px-10">
+        <p class="text-sm text-center text-slate">
+            Already have an account? 
+            <a href="{% url 'accounts:login' %}" class="font-medium text-gold hover:text-gold-light transition duration-300">
+                Sign in here
+            </a>
+        </p>
+    </div>
+</div>
+
+<script>
+    // Add Tailwind classes to form fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const formInputs = document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"]');
+        formInputs.forEach(input => {
+            input.classList.add('appearance-none', 'block', 'w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'placeholder-gray-400', 'focus:outline-none', 'focus:ring-gold', 'focus:border-gold');
+        });
+    });
+</script>
+{% endblock %}
