@@ -13,7 +13,7 @@ This project was developed as a final project for Soundarya Institute of Managem
 ### User Features:
 * **User Authentication:** Secure signup, login, and logout.
 * **Book Catalog:** Browse a list of all uploaded books.
-* **Book Details:** View detailed information about each book, including author, prices, and availability.
+* **Book Details:** View detailed information about each book, including author, reviews, and price.
 * **Book Upload:** Authenticated users can upload new books (PDF format).
 * **Purchase:** Users can purchase books for in-app reading access via Razorpay.
 * **Secure Content Access:** Download access is restricted to book owners only. Buyers can read purchased books securely within the application using the in-app reader (powered by PDF.js).
