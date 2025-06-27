@@ -129,25 +129,33 @@ Follow these steps to get the project up and running on your local machine for d
 ## 📷 Screenshots
 
 ### Home Page
-![Home Page Screenshot](placeholder/home-page.png)
+![Home Page Screenshot](project_demo/home-page.png)
+
+### Books Catalog Page
+![Books Catalog Screenshot](project_demo/books-catalog.png)
 
 ### Book Details Page
-![Book Details Screenshot](placeholder/book-details.png)
+![Book Details Screenshot](project_demo/book-details.png)
+
+### Payment Page
+![Book Details Screenshot](project_demo/payment-page1.png)
+![Book Details Screenshot](project_demo/payment-page2.png)
 
 ### In-App Reader
-![In-App Reader Screenshot](placeholder/in-app-reader.png)
+![In-App Reader Screenshot](project_demo/app-reader1.png)
+![In-App Reader Screenshot](project_demo/app-reader2.png)
 
 ### User Dashboard
-![User Dashboard Screenshot](placeholder/user-dashboard.png)
+![User Dashboard Screenshot](project_demo/dashboard.png)
 
 ---
 
-## 🎥 Video Demo
+<!-- ## 🎥 Video Demo
 
 Watch the full demo of the application here:  
 [![Video Demo](placeholder/video-thumbnail.png)](placeholder/video-link)
 
----
+--- -->
 
 ## 📈 Project Status
 
