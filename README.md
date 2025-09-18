@@ -1,6 +1,6 @@
-## College Final Project: Online Bookstore
+## Final Year College Project: Online Bookstore
 
-This is a college final project for an online bookstore built with Django. It allows users to browse, upload, buy, and read digital books (PDFs) securely within the application.
+This is my final year college project, an online bookstore built in Django. It allows users to browse, upload, buy, and read digital books (PDFs) securely within the application.
 
 ## 📷 Screenshots
 
