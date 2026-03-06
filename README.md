@@ -1,6 +1,6 @@
 ## Final Year College Project: Online Bookstore
 
-This is my final year college project, an online bookstore built in Django. It allows users to browse, upload, buy, and read digital books (PDFs) securely within the application.
+This is my final year college project, an online bookstore web app built using Django Framework (Python). It allows users to browse, upload, buy, and read digital books (PDFs) securely within the application.
 
 ## 📷 Screenshots
 
@@ -36,7 +36,7 @@ Watch the full demo of the application here:
 ## ✨ Key Features:
 * **User Accounts:** Users can sign up and log in.
 * **Book Management:** Users can browse the book catalog or upload their own PDF books.
-* **Purchasing:** Books can be bought using the Razorpay payment gateway.
+* **Purchasing:** Books can be bought by paying up demo-money (later real money)! Payment handled by Razorpay payment gateway.
 * **Secure Reader:** Purchased books can only be read inside the app's secure reader; they cannot be downloaded by buyers.
 * **Dashboard:** Uploaders have a dashboard to track their book sales and earnings.
 
@@ -46,10 +46,10 @@ Watch the full demo of the application here:
 * **Payments:** Razorpay API
 
 ## 📈 Project Status
-This project is a completed college final project and is not intended for production deployment without further security audits and production-ready configurations.
+This project was my college's final year project and is not intended for production deployment without further security audits and production-ready configurations.
 
 ## 🤝 Contributing
-This project is primarily for academic purposes. Contributions are not expected, but feel free to fork and experiment!
+This project is primarily for academic purposes. Contributions are not expected, but feel free to fork and experiment ⭐! 
 
 ## 🧑‍💻 Author
 * Deepanshu Soni
